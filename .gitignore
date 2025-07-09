@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / compiled files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.eggs/
+
+# Virtual environment
+venv/
+env/
+.env/
+*.sqlite3 # Or other database files if not intended for version control
+
+# IDE-specific files
+.idea/ # PyCharm
+.vscode/ # VS Code
+*.sublime-project
+*.sublime-workspace
+
+# Media and static files (if served locally and not intended for version control)
+media/
+static/
+
+# Log files
+*.log
+
+# Sensitive information (e.g., local settings, environment variables)
+local_settings.py
+.env
