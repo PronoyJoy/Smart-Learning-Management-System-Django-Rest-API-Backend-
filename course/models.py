@@ -1,94 +1,130 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+from django.utils.text import slugify
+from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
-# Create your models here.
-class Course(models.Model):
-    title = models.CharField(max_length=200)
-    description = models.TextField()
+# ---------------------------------------------------------------------------
+class Category(models.Model):
+    title      = models.CharField(max_length=255, unique=True)
+    is_active  = models.BooleanField(default=True)
+    slug       = models.SlugField(unique=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    lessson_count = models.PositiveIntegerField(default=0)
-    lessons = models.ManyToManyField('Lesson', related_name='courses', blank=True)
-    enrollment_count = models.PositiveIntegerField(default=0)
-    enrollment_limit = models.PositiveIntegerField(default=0)
-    enrolled_users = models.ManyToManyField('auth.User', related_name='enrolled_courses', blank=True)
-    is_active = models.BooleanField(default=True)
-    is_featured = models.BooleanField(default=False)
-    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
-    slug = models.SlugField(unique=True, max_length=200)
-    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name='courses', blank=True, null=True)
-    prerequisites = models.ManyToManyField('self', related_name='prerequisite_courses', blank=True)
-    author = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='courses', blank=True, null=True)
-    start_date = models.DateField(blank=True, null=True)
-    end_date = models.DateField(blank=True, null=True)
-    is_published = models.BooleanField(default=False)
-    is_archived = models.BooleanField(default=False)
-    is_deleted = models.BooleanField(default=False)
-    tags = models.ManyToManyField('Tag', related_name='courses', blank=True)
-    rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
-    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0.00)
-    total_reviews = models.PositiveIntegerField(default=0)
-    language = models.CharField(max_length=50, default='English')
-    video_url = models.URLField(blank=True, null=True)
-    prerequisites_met = models.BooleanField(default=False)
-    is_certified = models.BooleanField(default=False)
-    is_free = models.BooleanField(default=False)
-    is_live = models.BooleanField(default=False)
-    is_on_demand = models.BooleanField(default=False)
-    is_self_paced = models.BooleanField(default=False)
-    is_group_course = models.BooleanField(default=False)
-    is_cohort_based = models.BooleanField(default=False)
-    is_mentored = models.BooleanField(default=False)
-    is_project_based = models.BooleanField(default=False)
-    is_exclusive = models.BooleanField(default=False)
-    is_open_for_enrollment = models.BooleanField(default=True)
-    is_waitlist_enabled = models.BooleanField(default=False)
-    is_discounted = models.BooleanField(default=False)
-    discount_percentage = models.PositiveIntegerField(default=0)
-    discount_start_date = models.DateField(blank=True, null=True)
-    discount_end_date = models.DateField(blank=True, null=True)
-    is_certificate_issued = models.BooleanField(default=False)
-    certificate_template = models.ForeignKey('CertificateTemplate', on_delete=models.SET_NULL, related_name='courses', blank=True, null=True)
-    is_approved = models.BooleanField(default=False)
-    is_recommended = models.BooleanField(default=False)
-    is_archived_for_user = models.BooleanField(default=False)
-    is_featured_for_user = models.BooleanField(default=False)
-    is_visible_to_public = models.BooleanField(default=True)
-    is_visible_to_enrolled_users = models.BooleanField(default=True)
-    is_visible_to_instructors = models.BooleanField(default=True)
-    is_visible_to_admins = models.BooleanField(default=True)
-    is_visible_to_guests = models.BooleanField(default=True)
-    is_visible_to_waitlisted_users = models.BooleanField(default=True)
-    is_visible_to_non_enrolled_users = models.BooleanField(default=True)
-    is_visible_to_premium_users = models.BooleanField(default=False)
-    is_visible_to_free_users = models.BooleanField(default=True)
-    is_visible_to_live_users = models.BooleanField(default=False)
-    is_visible_to_on_demand_users = models.BooleanField(default=True)
-    is_visible_to_self_paced_users = models.BooleanField(default=True)
-    is_visible_to_group_users = models.BooleanField(default=False)
-    is_visible_to_cohort_users = models.BooleanField(default=False)
-    is_visible_to_mentored_users = models.BooleanField(default=False)
-    is_visible_to_project_based_users = models.BooleanField(default=False)
-    is_visible_to_exclusive_users = models.BooleanField(default=False)
-    is_visible_to_waitlist_users = models.BooleanField(default=False)
-    is_visible_to_discounted_users = models.BooleanField(default=False)
-    is_visible_to_certificate_users = models.BooleanField(default=False)
-    is_visible_to_approved_users = models.BooleanField(default=False)
-    is_visible_to_recommended_users = models.BooleanField(default=False)
-    is_visible_to_archived_users = models.BooleanField(default=False)
-    is_visible_to_featured_users = models.BooleanField(default=False)
-    is_visible_to_public_users = models.BooleanField(default=True)
-    is_visible_to_enrolled_users_only = models.BooleanField(default=False)
-    is_visible_to_instructors_only = models.BooleanField(default=False)
-    is_visible_to_admins_only = models.BooleanField(default=False)
-    is_visible_to_guests_only = models.BooleanField(default=False)
-    is_visible_to_waitlisted_users_only = models.BooleanField(default=False)
-    is_visible_to_non_enrolled_users_only = models.BooleanField(default=False)
-    is_visible_to_premium_users_only = models.BooleanField(default=False)
-    is_visible_to_free_users_only = models.BooleanField(default=False)
-    is_visible_to_live_users_only = models.BooleanField(default=False)
-    is_visible_to_on_demand_users_only = models.BooleanField(default=False)
-    is_visible_to_self_paced_users_only = models.BooleanField(default=False)
-    is_visible_to_group_users_only = models.BooleanField(default=False)
 
-    def __str__(self):
+    class Meta:
+        verbose_name_plural = "categories"
+        ordering = ("title",)
+
+    def __str__(self) -> str:
+        return self.title
+
+    # Auto-generate slug the first time (and if it stays blank)
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+
+# ---------------------------------------------------------------------------
+# Course
+# ---------------------------------------------------------------------------
+class Course(models.Model):
+
+    # ─── Enumerations ───────────────────────────────────────────────────────
+    class CourseLevel(models.TextChoices):
+        BEGINNER     = "beginner",     _("Beginner")
+        INTERMEDIATE = "intermediate", _("Intermediate")
+        ADVANCED     = "advanced",     _("Advanced")
+
+    class CourseType(models.TextChoices):
+        FREE = "free", _("Free")
+        PAID = "paid", _("Paid")
+
+    # ─── Core fields ────────────────────────────────────────────────────────
+    title       = models.CharField(max_length=255)
+    description = models.TextField()
+    banner      = models.ImageField(upload_to="course_banners/")
+
+    price       = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0,
+        validators=[MinValueValidator(0)],
+        help_text=_("Price in your default currency"),
+    )
+    level       = models.CharField(
+        max_length=20,
+        choices=CourseLevel.choices,
+        default=CourseLevel.BEGINNER,
+        db_index=True,
+    )
+    type        = models.CharField(
+        max_length=20,
+        choices=CourseType.choices,
+        default=CourseType.FREE,
+        db_index=True,
+    )
+
+    tags            = ArrayField(models.CharField(max_length=50), blank=True, default=list)
+    prerequisites   = models.TextField(blank=True, null=True)
+    duration        = models.PositiveSmallIntegerField(
+        default=0,
+        help_text=_("Approximate total duration in hours"),
+    )
+    syllabus        = models.TextField(blank=True, null=True, help_text=_("Course syllabus or outline"))
+    feedback        = models.TextField(blank=True, null=True, help_text=_("Feedback or reviews from students"))
+    is_active       = models.BooleanField(default=True)
+
+    # ─── Relations ──────────────────────────────────────────────────────────
+    category   = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        related_name="courses",
+    )
+    instructor = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        limit_choices_to={"role": "teacher"},
+        related_name="courses_taught",
+    )
+
+    # ─── Timestamps ─────────────────────────────────────────────────────────
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # ─── Meta & indexes ─────────────────────────────────────────────────────
+    class Meta:
+        ordering = ("-created_at",)
+        indexes  = [
+            models.Index(fields=("type",)),
+            models.Index(fields=("level",)),
+            models.Index(fields=("category", "is_active")),
+        ]
+        unique_together = ("title", "instructor")      # optional: avoid dup titles per teacher
+
+    # ─── Validation rules ───────────────────────────────────────────────────
+    def clean(self):
+        """
+        Enforce business rules:
+        - free course ⇒ price must be 0
+        - paid course ⇒ price must be > 0
+        """
+        super().clean()
+
+        if self.type == self.CourseType.FREE and self.price > 0:
+            raise ValidationError(_("Free courses must have price = 0."))
+        if self.type == self.CourseType.PAID and self.price <= 0:
+            raise ValidationError(_("Paid courses must have a positive price."))
+
+    # ─── Convenience helpers ───────────────────────────────────────────────
+    @property
+    def is_paid(self) -> bool:
+        """Return True if the course requires payment."""
+        return self.type == self.CourseType.PAID
+
+    def __str__(self) -> str:
         return self.title
