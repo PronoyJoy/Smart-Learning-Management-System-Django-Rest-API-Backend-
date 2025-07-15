@@ -47,7 +47,8 @@ class Course(models.Model):
     # ─── Core fields ────────────────────────────────────────────────────────
     title       = models.CharField(max_length=255)
     description = models.TextField()
-    banner      = models.ImageField(upload_to="course_banners/")
+    banner = models.ImageField(upload_to="course_banners/", null=True, blank=True)
+
 
     price       = models.DecimalField(
         max_digits=10,

@@ -13,6 +13,7 @@ class CustomUserAdmin(BaseUserAdmin):
     list_display = ['id', 'email', 'role', 'is_staff', 'is_active']
     search_fields = ['email']
     list_filter = ['role', 'is_active', 'is_staff', 'is_superuser']
+    list_display_links = ("email",)  # ✅ This makes "email" clickable
 
     # Fields for viewing/editing existing users
     fieldsets = (

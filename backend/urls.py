@@ -22,4 +22,7 @@ urlpatterns = [
     #register
     path('api/users/', include('users.urls')),
 
+    #course 
+    path('api/course/', include('course.urls')),
+
 ]
