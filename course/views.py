@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser,AllowAny
 from .models import Course
 from course.serializers.course_serializers import CourseSerializer
 from .permissions import IsCourseTeacherOrAdmin
@@ -41,5 +41,5 @@ class CategoryViewSet(ReadOnlyModelViewSet):
     """
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsAdminUser] # No special permissions needed for read-only access
+    permission_classes = [AllowAny]
 

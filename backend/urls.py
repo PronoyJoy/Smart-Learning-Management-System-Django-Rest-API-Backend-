@@ -7,6 +7,27 @@ from rest_framework_simplejwt.views import (
 from rest_framework_simplejwt.views import TokenVerifyView
 import users
 
+from rest_framework_nested.routers import DefaultRouter, NestedDefaultRouter
+from course.views import CourseViewSet,CategoryViewSet
+from lessons.views import LessonViewSet
+
+
+# ------------------------------
+# 📦 Main API Router
+# ------------------------------
+router = DefaultRouter()
+router.register(r'courses', CourseViewSet, basename='courses')
+
+# ------------------------------
+# 📦 Nested Lessons under Courses
+# ------------------------------
+course_router = NestedDefaultRouter(router, r'courses', lookup='course')
+course_router.register(r'lessons', LessonViewSet, basename='course-lessons')
+router.register(r"categories", CategoryViewSet, basename="category")
+#path('courses/<int:course_pk>/lessons/', ...)
+
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
@@ -22,7 +43,9 @@ urlpatterns = [
     #register
     path('api/users/', include('users.urls')),
 
-    #course 
-    path('api/course/', include('course.urls')),
+
+    # 📚 Course & Lesson APIs
+    path('api/', include(router.urls)),         # /api/courses/
+    path('api/', include(course_router.urls)),  # /api/courses/<id>/lessons/
 
 ]
